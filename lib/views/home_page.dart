@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/pages/main_page.dart';
-import 'package:weather_app/pages/search_page.dart';
-import '../languages/text_widgets.dart';
+import 'package:weather_app/views/favorite_pages.dart';
+import 'package:weather_app/views/search_page.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,28 +11,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  int _selectedIndex = 0; // Seçili sayfa indeksi
 
-  final List<Widget> _widgetOptions = <Widget>[
-    const SearchPage(),
-    const Text(
-      'Index 1: favori',
-      style: optionStyle,
-    ),
-  ];
-
+  // Alt menüdeki öğe seçildiğinde tetiklenen fonksiyon
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  // FAB tıklamasında tetiklenen fonksiyon
   void _onFabPressed() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const MainPage()),
+      MaterialPageRoute(builder: (context) => const FavoritePages()),
     );
   }
 
@@ -40,11 +32,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(ProjectKeywords.weather),
+        title: const Text('Weather App'), // Uygulama başlığı
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.white.withOpacity(0.8),
-        onPressed: _onFabPressed,
+        onPressed: _onFabPressed, // FAB tıklama olayı
         child: const Icon(
           Icons.sunny,
           color: Colors.orange,
@@ -57,12 +49,16 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ara'),
           BottomNavigationBarItem(icon: Icon(Icons.star), label: 'favoriler'),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: _selectedIndex, // Seçili öğe indeksi
         selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+        onTap: _onItemTapped, // Öğeye tıklama olayı
       ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: const [
+          SearchPage(), // İlk sayfa
+          Center(child: Text('Index 1: favori', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
+        ],
       ),
     );
   }
