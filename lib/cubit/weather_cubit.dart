@@ -4,28 +4,53 @@ import 'package:weather_app/models/weather_model.dart';
 import 'package:weather_app/cubit/weather_state.dart';
 
 class WeatherCubit extends Cubit<WeatherState> {
-  WeatherCubit() : super(WeatherInitial()); // Başlangıç durumu olarak WeatherInitial'ı ayarla
+  WeatherCubit() : super(WeatherInitial());
 
-  final Dio _dio = Dio(); // Dio HTTP istemcisi
+  final Dio _dio = Dio();
 
-  // Hava durumu verisini çeken fonksiyon
   Future<void> fetchWeather(String city) async {
-    final apiKey = '36a06512f3094315ad4112041240208'; // weatherapi.com API anahtarınızı buraya koyun
-    final url = 'https://api.weatherapi.com/v1/current.json?key=$apiKey&q=$city';
+    final apiKey = '36a06512f3094315ad4112041240208';
+    final url =
+        'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$city&days=3&lang=tr';
 
     try {
-      emit(WeatherLoading()); // Veri yüklenmeye başlandığında durumunu güncelle
-      final response = await _dio.get(url); // HTTP GET isteği
+      emit(WeatherLoading());
+      final response = await _dio.get(url);
 
       if (response.statusCode == 200) {
-        final jsonResponse = response.data; // Gelen yanıtın JSON verisi
-        final weather = Weather.fromJson(jsonResponse); // JSON'dan Weather nesnesine dönüştürme
-        emit(WeatherLoaded(weather)); // Yüklü veri durumunu yay
+        final jsonResponse = response.data;
+        final weather = Weather.fromJson(jsonResponse);
+        emit(WeatherLoaded(weather));
       } else {
-        emit(const WeatherError('Failed to load weather data')); // Hata durumunu yay
+        emit(WeatherError('Failed to load weather data'));
       }
     } catch (e) {
-      emit(WeatherError(e.toString())); // Hata durumunu yay
+      emit(WeatherError(e.toString()));
+    }
+  }
+
+  Future<void> fetchWeatherForCities(List<String> cities) async {
+    final apiKey = '36a06512f3094315ad4112041240208';
+
+    try {
+      emit(WeatherLoading());
+
+      final responses = await Future.wait(
+        cities.map((city) {
+          final url =
+              'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$city&days=3&lang=tr';
+          return _dio.get(url);
+        }),
+      );
+
+      final weathers = responses.map((response) {
+        final jsonResponse = response.data;
+        return Weather.fromJson(jsonResponse);
+      }).toList();
+
+      emit(WeathersLoaded(weathers));
+    } catch (e) {
+      emit(WeatherError(e.toString()));
     }
   }
 }

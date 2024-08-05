@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/views/favorite_pages.dart';
 import 'package:weather_app/views/search_page.dart';
-
+import 'package:weather_app/views/current_location.dart'; // Import the new page
+import 'package:weather_app/cubit/favorite_cubit.dart';
+import 'package:weather_app/cubit/weather_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,54 +14,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Seçili sayfa indeksi
+  int _selectedIndex = 0;
 
-  // Alt menüdeki öğe seçildiğinde tetiklenen fonksiyon
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
-  // FAB tıklamasında tetiklenen fonksiyon
-  void _onFabPressed() {
+  void _navigateToCurrentLocationPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const FavoritePages()),
+      MaterialPageRoute(builder: (context) => const CurrentLocationPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Weather App'), // Uygulama başlığı
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white.withOpacity(0.8),
-        onPressed: _onFabPressed, // FAB tıklama olayı
-        child: const Icon(
-          Icons.sunny,
-          color: Colors.orange,
-          size: 36,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => WeatherCubit()),
+        BlocProvider(
+            create: (context) => FavoriteCubit(context.read<WeatherCubit>())),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Weather App'),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ara'),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: 'favoriler'),
-        ],
-        currentIndex: _selectedIndex, // Seçili öğe indeksi
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped, // Öğeye tıklama olayı
-      ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: const [
-          SearchPage(), // İlk sayfa
-          Center(child: Text('Index 1: favori', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))),
-        ],
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white.withOpacity(0.8),
+          onPressed: _navigateToCurrentLocationPage,
+          child: const Icon(
+            Icons.sunny,
+            color: Colors.orange,
+            size: 36,
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ara'),
+            BottomNavigationBarItem(icon: Icon(Icons.star), label: 'favoriler'),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: const [
+            SearchPage(),
+            FavoritePage(),
+          ],
+        ),
       ),
     );
   }

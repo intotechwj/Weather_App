@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => WeatherCubit(), // WeatherCubit'in oluşturulması ve sağlanması
+      create: (context) =>
+          WeatherCubit(), // WeatherCubit'in oluşturulması ve sağlanması
       child: MaterialApp(
         debugShowCheckedModeBanner: false, // Debug etiketi kapalı
         title: 'Weather App', // Uygulama başlığı

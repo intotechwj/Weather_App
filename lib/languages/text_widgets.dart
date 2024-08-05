@@ -1,8 +1,6 @@
 class ProjectKeywords {
   static const weather = 'Weather App';
-}
-
-class FavoriteScreen {
+  static const havadurumu = 'hava durumu';
   static const favorites = 'Favoriler';
+  static const ara = 'ara';
 }
-

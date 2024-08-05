@@ -41,6 +41,8 @@ dependencies:
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
   http: ^1.2.2
+  meta: ^1.12.0
+  geolocator: ^13.0.0
 
 dev_dependencies:
   flutter_test:
