@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/views/favorite_pages.dart';
 import 'package:weather_app/views/search_page.dart';
-import 'package:weather_app/views/current_location.dart'; // Import the new page
 import 'package:weather_app/cubit/favorite_cubit.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
 
@@ -22,12 +21,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _navigateToCurrentLocationPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CurrentLocationPage()),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white.withOpacity(0.8),
-          onPressed: _navigateToCurrentLocationPage,
+          onPressed: (){},
           child: const Icon(
             Icons.sunny,
             color: Colors.orange,
