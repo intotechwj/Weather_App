@@ -35,60 +35,72 @@ class _HomePageState extends State<HomePage> {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
           final sharedPreferences = snapshot.data!;
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider(create: (context) => WeatherCubit()),
-              BlocProvider(
-                create: (context) => FavoriteCubit(
-                  context.read<WeatherCubit>(),
-                  sharedPreferences,
-                ),
-              ),
-            ],
-            child: Scaffold(
-              appBar: AppBar(
-                title: const Text(ProjectKeywords.weather),
-              ),
-              floatingActionButton: FloatingActionButton(
-                backgroundColor: Colors.white.withOpacity(0.8),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CurrentLocationPage(),
-                    ),
-                  );
-                },
-                child: const Icon(
-                  Icons.sunny,
-                  color: Colors.orange,
-                  size: 36,
-                ),
-              ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerDocked,
-              bottomNavigationBar: BottomNavigationBar(
-                items: const [
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.star), label: ProjectKeywords.favorites),
-                  BottomNavigationBarItem(
-                      icon: Icon(Icons.search), label: ProjectKeywords.search),
-                ],
-                currentIndex: _selectedIndex,
-                selectedItemColor: Colors.amber[800],
-                onTap: _onItemTapped,
-              ),
-              body: IndexedStack(
-                index: _selectedIndex,
-                children: const [
-                  FavoritePage(),
-                  SearchPage(),
-                ],
-              ),
-            ),
-          );
+          return homeMultiBlocProvider(sharedPreferences, context);
         }
       },
     );
   }
+
+  MultiBlocProvider homeMultiBlocProvider(
+      SharedPreferences sharedPreferences, BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        homeWeatherBlocCubitProvider(),
+        homeFavoriteBlocCubitProvider(sharedPreferences),
+      ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(ProjectKeywords.weather),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white.withOpacity(0.8),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const CurrentLocationPage(),
+              ),
+            );
+          },
+          child: const Icon(
+            Icons.sunny,
+            color: Colors.orange,
+            size: 36,
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: BottomNavigationBar(
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.star), label: ProjectKeywords.favorites),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.search), label: ProjectKeywords.search),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.amber[800],
+          onTap: _onItemTapped,
+        ),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: const [
+            FavoritePage(),
+            SearchPage(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  BlocProvider<FavoriteCubit> homeFavoriteBlocCubitProvider(
+      SharedPreferences sharedPreferences) {
+    return BlocProvider(
+      create: (context) => FavoriteCubit(
+        context.read<WeatherCubit>(),
+        sharedPreferences,
+      ),
+    );
+  }
+
+  BlocProvider<WeatherCubit> homeWeatherBlocCubitProvider() =>
+      BlocProvider(create: (context) => WeatherCubit());
 }

@@ -22,23 +22,28 @@ class FavoritePage extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             final sharedPreferences = snapshot.data!;
-            return BlocProvider(
-              create: (context) => FavoriteCubit(
-                context.read<WeatherCubit>(),
-                sharedPreferences,
-              ),
-              child: BlocBuilder<FavoriteCubit, FavoriteState>(
-                builder: (context, favoriteState) {
-                  if (favoriteState is FavoriteInitial) {
-                    return const Center(child: Text('Favori Şehir Ekleyiniz'));
-                  } else if (favoriteState is FavoriteLoaded) {
-                    return _favoriteWeatherBlocBuilder();
-                  }
-                  return const Center(child: CircularProgressIndicator());
-                },
-              ),
-            );
+            return favoriteWeatherBlocProvider(sharedPreferences);
           }
+        },
+      ),
+    );
+  }
+
+  BlocProvider<FavoriteCubit> favoriteWeatherBlocProvider(
+      SharedPreferences sharedPreferences) {
+    return BlocProvider(
+      create: (context) => FavoriteCubit(
+        context.read<WeatherCubit>(),
+        sharedPreferences,
+      ),
+      child: BlocBuilder<FavoriteCubit, FavoriteState>(
+        builder: (context, favoriteState) {
+          if (favoriteState is FavoriteInitial) {
+            return const Center(child: Text('Favori Şehir Ekleyiniz'));
+          } else if (favoriteState is FavoriteLoaded) {
+            return _favoriteWeatherBlocBuilder();
+          }
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );
@@ -50,54 +55,57 @@ class FavoritePage extends StatelessWidget {
         if (weatherState is WeatherLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (weatherState is WeathersLoaded) {
-          return ListView.builder(
-            itemCount: weatherState.weathers.length,
-            itemBuilder: (context, index) {
-              final weather = weatherState.weathers[index];
-              return Card(
-                child: ListTile(
-                  title: Text(weather.cityName),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.network(weather.icon),
-                      Text(
-                          '${ProjectKeywords.temperature}: ${weather.temperature}°C'),
-                      Text(
-                          '${ProjectKeywords.description}: ${weather.description}'),
-                      const Divider(
-                        color: Colors.white,
-                      ),
-                      Column(
-                        children: weather.dailyWeather.map((daily) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                  '${daily.date}\n${ProjectKeywords.maxTemp}: ${daily.maxTemp}°C\n${ProjectKeywords.minTemp}: ${daily.minTemp}°C'),
-                              Image.network(daily.icon),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      context
-                          .read<FavoriteCubit>()
-                          .removeFavoriteCity(weather.cityName);
-                    },
-                  ),
-                ),
-              );
-            },
-          );
+          return favoriteListviewBuilder(weatherState);
         } else if (weatherState is WeatherError) {
           return Center(child: Text('Error: ${weatherState.message}'));
         }
         return const SizedBox.shrink();
+      },
+    );
+  }
+
+  ListView favoriteListviewBuilder(WeathersLoaded weatherState) {
+    return ListView.builder(
+      itemCount: weatherState.weathers.length,
+      itemBuilder: (context, index) {
+        final weather = weatherState.weathers[index];
+        return Card(
+          child: ListTile(
+            title: Text(weather.cityName),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.network(weather.icon),
+                Text(
+                    '${ProjectKeywords.temperature}: ${weather.temperature}°C'),
+                Text('${ProjectKeywords.description}: ${weather.description}'),
+                const Divider(
+                  color: Colors.white,
+                ),
+                Column(
+                  children: weather.dailyWeather.map((daily) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            '${daily.date}\n${ProjectKeywords.maxTemp}: ${daily.maxTemp}°C\n${ProjectKeywords.minTemp}: ${daily.minTemp}°C'),
+                        Image.network(daily.icon),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                context
+                    .read<FavoriteCubit>()
+                    .removeFavoriteCity(weather.cityName);
+              },
+            ),
+          ),
+        );
       },
     );
   }

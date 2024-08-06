@@ -21,7 +21,7 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          searchCityBloc(),
+          searchCityBlocBuilder(),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -46,7 +46,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  BlocBuilder<WeatherCubit, WeatherState> searchCityBloc() {
+  BlocBuilder<WeatherCubit, WeatherState> searchCityBlocBuilder() {
     return BlocBuilder<WeatherCubit, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitial) {
