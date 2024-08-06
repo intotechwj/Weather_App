@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weather_app/languages/text_widgets.dart';
 import 'package:weather_app/views/favorite_pages.dart';
 import 'package:weather_app/views/search_page.dart';
+import 'package:weather_app/views/current_location.dart';
 import 'package:weather_app/cubit/favorite_cubit.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
 
@@ -21,47 +24,71 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => WeatherCubit()),
-        BlocProvider(
-            create: (context) => FavoriteCubit(context.read<WeatherCubit>())),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Weather App'),
-        ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.white.withOpacity(0.8),
-          onPressed: (){},
-          child: const Icon(
-            Icons.sunny,
-            color: Colors.orange,
-            size: 36,
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        bottomNavigationBar: BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'ara'),
-            BottomNavigationBarItem(icon: Icon(Icons.star), label: 'favoriler'),
-          ],
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.amber[800],
-          onTap: _onItemTapped,
-        ),
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: const [
-            SearchPage(),
-            FavoritePage(),
-          ],
-        ),
-      ),
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final sharedPreferences = snapshot.data!;
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (context) => WeatherCubit()),
+              BlocProvider(
+                create: (context) => FavoriteCubit(
+                  context.read<WeatherCubit>(),
+                  sharedPreferences,
+                ),
+              ),
+            ],
+            child: Scaffold(
+              appBar: AppBar(
+                title: const Text(ProjectKeywords.weather),
+              ),
+              floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.white.withOpacity(0.8),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CurrentLocationPage(),
+                    ),
+                  );
+                },
+                child: const Icon(
+                  Icons.sunny,
+                  color: Colors.orange,
+                  size: 36,
+                ),
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerDocked,
+              bottomNavigationBar: BottomNavigationBar(
+                items: const [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.star), label: ProjectKeywords.favorites),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.search), label: ProjectKeywords.search),
+                ],
+                currentIndex: _selectedIndex,
+                selectedItemColor: Colors.amber[800],
+                onTap: _onItemTapped,
+              ),
+              body: IndexedStack(
+                index: _selectedIndex,
+                children: const [
+                  FavoritePage(),
+                  SearchPage(),
+                ],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }

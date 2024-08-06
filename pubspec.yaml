@@ -42,7 +42,8 @@ dependencies:
   equatable: ^2.0.5
   http: ^1.2.2
   meta: ^1.12.0
-  geolocator: ^13.0.0
+  shared_preferences: ^2.3.1
+  geolocator: ^13.0.1
 
 dev_dependencies:
   flutter_test:

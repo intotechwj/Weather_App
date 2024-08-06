@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
 import 'package:weather_app/cubit/weather_state.dart';
 import 'package:weather_app/cubit/favorite_cubit.dart';
+import 'package:weather_app/languages/text_widgets.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -20,39 +21,7 @@ class _SearchPageState extends State<SearchPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          BlocBuilder<WeatherCubit, WeatherState>(
-            builder: (context, state) {
-              if (state is WeatherInitial) {
-                return const Text('Please enter a city name');
-              } else if (state is WeatherLoading) {
-                return const CircularProgressIndicator();
-              } else if (state is WeatherLoaded) {
-                return Column(
-                  children: [
-                    Text('City: ${state.weather.cityName}',
-                        style: const TextStyle(fontSize: 20)),
-                    Text('Temperature: ${state.weather.temperature}',
-                        style: const TextStyle(fontSize: 20)),
-                    Text('Description: ${state.weather.description}',
-                        style: const TextStyle(fontSize: 20)),
-                    Image.network(state.weather.icon),
-                    ElevatedButton(
-                      onPressed: () {
-                        context
-                            .read<FavoriteCubit>()
-                            .addFavoriteCity(state.weather.cityName);
-                      },
-                      child: const Text('Add to Favorites'),
-                    ),
-                  ],
-                );
-              } else if (state is WeatherError) {
-                return Text('Error: ${state.message}',
-                    style: const TextStyle(fontSize: 20));
-              }
-              return const SizedBox.shrink();
-            },
-          ),
+          searchCityBloc(),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -60,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
               controller: _controller,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Enter City Name',
+                labelText: 'Şehir Giriniz',
               ),
             ),
           ),
@@ -70,10 +39,50 @@ class _SearchPageState extends State<SearchPage> {
               final weatherCubit = context.read<WeatherCubit>();
               weatherCubit.fetchWeather(_controller.text);
             },
-            child: const Text('Fetch Weather'),
+            child: const Text(ProjectKeywords.fetchWeather),
           ),
         ],
       ),
+    );
+  }
+
+  BlocBuilder<WeatherCubit, WeatherState> searchCityBloc() {
+    return BlocBuilder<WeatherCubit, WeatherState>(
+      builder: (context, state) {
+        if (state is WeatherInitial) {
+          return const Text('Şehir İsmi Giriniz');
+        } else if (state is WeatherLoading) {
+          return const CircularProgressIndicator();
+        } else if (state is WeatherLoaded) {
+          return searchCityWeather(state, context);
+        } else if (state is WeatherError) {
+          return Text('Error: ${state.message}',
+              style: const TextStyle(fontSize: 20));
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Column searchCityWeather(WeatherLoaded state, BuildContext context) {
+    return Column(
+      children: [
+        Text('${ProjectKeywords.city}: ${state.weather.cityName}',
+            style: const TextStyle(fontSize: 20)),
+        Text('${ProjectKeywords.temperature}: ${state.weather.temperature}',
+            style: const TextStyle(fontSize: 20)),
+        Text('${ProjectKeywords.description}: ${state.weather.description}',
+            style: const TextStyle(fontSize: 20)),
+        Image.network(state.weather.icon),
+        ElevatedButton(
+          onPressed: () {
+            context
+                .read<FavoriteCubit>()
+                .addFavoriteCity(state.weather.cityName);
+          },
+          child: const Text(ProjectKeywords.addFavorite),
+        ),
+      ],
     );
   }
 }

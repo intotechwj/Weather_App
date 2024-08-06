@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:weather_app/languages/text_widgets.dart';
 import 'package:weather_app/models/weather_model.dart';
 import 'package:weather_app/cubit/weather_state.dart';
 
@@ -9,7 +10,7 @@ class WeatherCubit extends Cubit<WeatherState> {
   final Dio _dio = Dio();
 
   Future<void> fetchWeather(String city) async {
-    final apiKey = '36a06512f3094315ad4112041240208';
+    const apiKey = ApiKey.apiKey;
     final url =
         'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$city&days=3&lang=tr';
 
@@ -30,7 +31,7 @@ class WeatherCubit extends Cubit<WeatherState> {
   }
 
   Future<void> fetchWeatherForCities(List<String> cities) async {
-    final apiKey = '36a06512f3094315ad4112041240208';
+    const apiKey = ApiKey.apiKey;
 
     try {
       emit(WeatherLoading());
@@ -49,6 +50,27 @@ class WeatherCubit extends Cubit<WeatherState> {
       }).toList();
 
       emit(WeathersLoaded(weathers));
+    } catch (e) {
+      emit(WeatherError(e.toString()));
+    }
+  }
+
+  Future<void> fetchWeatherByLocation(double latitude, double longitude) async {
+    final apiKey = '36a06512f3094315ad4112041240208';
+    final url =
+        'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$latitude,$longitude&days=3&lang=tr';
+
+    try {
+      emit(WeatherLoading());
+      final response = await _dio.get(url);
+
+      if (response.statusCode == 200) {
+        final jsonResponse = response.data;
+        final weather = Weather.fromJson(jsonResponse);
+        emit(WeatherLoaded(weather));
+      } else {
+        emit(WeatherError('Failed to load weather data'));
+      }
     } catch (e) {
       emit(WeatherError(e.toString()));
     }
