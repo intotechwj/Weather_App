@@ -56,7 +56,7 @@ class WeatherCubit extends Cubit<WeatherState> {
   }
 
   Future<void> fetchWeatherByLocation(double latitude, double longitude) async {
-    final apiKey = '36a06512f3094315ad4112041240208';
+    final apiKey = ApiKey.apiKey;
     final url =
         'https://api.weatherapi.com/v1/forecast.json?key=$apiKey&q=$latitude,$longitude&days=3&lang=tr';
 

@@ -88,6 +88,7 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
             '${ProjectKeywords.city}: ${state.weather.cityName}',
             style: const TextStyle(fontSize: 20),
           ),
+          Image.network(state.weather.icon),
           Text(
             '${ProjectKeywords.temperature}: ${state.weather.temperature}°C',
             style: const TextStyle(fontSize: 20),
@@ -96,9 +97,8 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
             '${ProjectKeywords.description}: ${state.weather.description}',
             style: const TextStyle(fontSize: 20),
           ),
-          Image.network(state.weather.icon),
           Text(
-            '${ProjectKeywords.windSpeed}: ${state.weather.windSpeed} kph',
+            '${ProjectKeywords.windSpeed}: ${state.weather.windSpeed} km/s',
             style: const TextStyle(fontSize: 20),
           ),
           Text(
@@ -112,7 +112,10 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
           const SizedBox(height: 20),
           const Text(
             '${ProjectKeywords.hourlyForecast}:',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const Divider(
+            color: Colors.white,
           ),
           SizedBox(
             height: 200,
