@@ -18,46 +18,48 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          searchCityBlocBuilder(),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Form(
-              key: _formKey,
-              child: TextFormField(
-                controller: _controller,
-                keyboardType: TextInputType.streetAddress,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: ProjectKeywords.writeCity,
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            searchCityBlocBuilder(),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Form(
+                key: _formKey,
+                child: TextFormField(
+                  controller: _controller,
+                  keyboardType: TextInputType.streetAddress,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: ProjectKeywords.writeCity,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return ErrorMessage.textfieldWarning;
+                    }
+                    if (value.length <= 2) {
+                      return ErrorMessage.textfieldBoundry;
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return ErrorMessage.textfieldWarning;
-                  }
-                  if (value.length <= 2) {
-                    return ErrorMessage.textfieldBoundry;
-                  }
-                  return null;
-                },
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState?.validate() ?? false) {
-                final weatherCubit = context.read<WeatherCubit>();
-                weatherCubit.fetchWeather(_controller.text);
-              }
-            },
-            child: const Text(ProjectKeywords.fetchWeather),
-          ),
-        ],
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  final weatherCubit = context.read<WeatherCubit>();
+                  weatherCubit.fetchWeather(_controller.text);
+                }
+              },
+              child: const Text(ProjectKeywords.fetchWeather),
+            ),
+          ],
+        ),
       ),
     );
   }
