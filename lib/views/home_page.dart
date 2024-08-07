@@ -7,6 +7,7 @@ import 'package:weather_app/views/search_page.dart';
 import 'package:weather_app/views/current_location.dart';
 import 'package:weather_app/cubit/favorite_cubit.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
+import 'package:weather_app/cubit/theme_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,7 +33,7 @@ class _HomePageState extends State<HomePage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
+          return Center(child: Text('${ErrorMessage.error}: ${snapshot.error}'));
         } else {
           final sharedPreferences = snapshot.data!;
           return homeMultiBlocProvider(sharedPreferences, context);
@@ -51,6 +52,14 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(ProjectKeywords.weather),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.brightness_6_outlined),
+              onPressed: () {
+                context.read<ThemeCubit>().toggleTheme();
+              },
+            ),
+          ],
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.white.withOpacity(0.8),

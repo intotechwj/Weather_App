@@ -34,20 +34,20 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+      return Future.error(ErrorMessage.serviceDisabled);
     }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied.');
+        return Future.error(ErrorMessage.locationPermissionDenied);
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
+          ErrorMessage.locationPermissionPermaDenied);
     }
 
     return await Geolocator.getCurrentPosition();
@@ -68,7 +68,7 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
           } else if (state is WeatherError) {
             return Center(
               child: Text(
-                'Error: ${state.message}',
+                '${ErrorMessage.error}: ${state.message}',
                 style: const TextStyle(fontSize: 20),
               ),
             );

@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
               controller: _controller,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Şehir Giriniz',
+                labelText: ProjectKeywords.writeCity,
               ),
             ),
           ),
@@ -50,7 +50,7 @@ class _SearchPageState extends State<SearchPage> {
     return BlocBuilder<WeatherCubit, WeatherState>(
       builder: (context, state) {
         if (state is WeatherInitial) {
-          return const Text('Şehir İsmi Giriniz');
+          return const Text(ProjectKeywords.writeCity);
         } else if (state is WeatherLoading) {
           return const CircularProgressIndicator();
         } else if (state is WeatherLoaded) {

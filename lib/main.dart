@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app/languages/text_widgets.dart';
 import 'package:weather_app/views/home_page.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
+import 'package:weather_app/cubit/theme_cubit.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -13,19 +15,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => WeatherCubit(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: ProjectKeywords.weather,
-        theme: ThemeData.dark().copyWith(
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-          ),
-        ),
-        home: const HomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => WeatherCubit()),
+        BlocProvider(create: (context) => ThemeCubit()),
+      ],
+      child: BlocBuilder<ThemeCubit, ThemeData>(
+        builder: (context, theme) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: ProjectKeywords.weather,
+            theme: theme,
+            home: const HomePage(),
+          );
+        },
       ),
     );
   }

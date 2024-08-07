@@ -23,7 +23,7 @@ class WeatherCubit extends Cubit<WeatherState> {
         final weather = Weather.fromJson(jsonResponse);
         emit(WeatherLoaded(weather));
       } else {
-        emit(WeatherError('Failed to load weather data'));
+        emit(WeatherError(ErrorMessage.weatherDataFailed));
       }
     } catch (e) {
       emit(WeatherError(e.toString()));
@@ -69,7 +69,7 @@ class WeatherCubit extends Cubit<WeatherState> {
         final weather = Weather.fromJson(jsonResponse);
         emit(WeatherLoaded(weather));
       } else {
-        emit(WeatherError('Failed to load weather data'));
+        emit(WeatherError(ErrorMessage.weatherDataFailed));
       }
     } catch (e) {
       emit(WeatherError(e.toString()));

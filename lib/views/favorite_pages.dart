@@ -39,7 +39,7 @@ class FavoritePage extends StatelessWidget {
       child: BlocBuilder<FavoriteCubit, FavoriteState>(
         builder: (context, favoriteState) {
           if (favoriteState is FavoriteInitial) {
-            return const Center(child: Text('Favori Şehir Ekleyiniz'));
+            return const Center(child: Text(ProjectKeywords.addFavoriteCity));
           } else if (favoriteState is FavoriteLoaded) {
             return _favoriteWeatherBlocBuilder();
           }
@@ -57,7 +57,7 @@ class FavoritePage extends StatelessWidget {
         } else if (weatherState is WeathersLoaded) {
           return favoriteListviewBuilder(weatherState);
         } else if (weatherState is WeatherError) {
-          return Center(child: Text('Error: ${weatherState.message}'));
+          return Center(child: Text('${ErrorMessage.error}: ${weatherState.message}'));
         }
         return const SizedBox.shrink();
       },
