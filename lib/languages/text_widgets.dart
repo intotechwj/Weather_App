@@ -18,13 +18,19 @@ class ProjectKeywords {
   static const writeCity = 'Şehir İsmi Giriniz';
 }
 
-class ApiKey {
-  static const apiKey = '36a06512f3094315ad4112041240208';
-}
-class ErrorMessage{
+class ErrorMessage {
   static const error = 'Error';
   static const serviceDisabled = 'Location services are disabled.';
   static const locationPermissionDenied = 'Location permissions are denied.';
-  static const locationPermissionPermaDenied = 'Location permissions are permanently denied, we cannot request permissions.';
+  static const locationPermissionPermaDenied =
+      'Location permissions are permanently denied, we cannot request permissions.';
   static const weatherDataFailed = 'Failed to load weather data';
+  static const textfieldWarning = 'TextField boş olamaz';
+  static const textfieldBoundry = 'En az üç karakter giriniz';
+}
+
+class MeasureUnit {
+  static const centigrade = '°C';
+  static const percent = '%';
+  static const kilometer = 'km/s';
 }

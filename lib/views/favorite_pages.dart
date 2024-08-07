@@ -19,10 +19,11 @@ class FavoritePage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+                child: Text('${ErrorMessage.error}: ${snapshot.error}'));
           } else {
             final sharedPreferences = snapshot.data!;
-            return favoriteWeatherBlocProvider(sharedPreferences);
+            return favoriteWeatherBlocProvider(context, sharedPreferences);
           }
         },
       ),
@@ -30,10 +31,10 @@ class FavoritePage extends StatelessWidget {
   }
 
   BlocProvider<FavoriteCubit> favoriteWeatherBlocProvider(
-      SharedPreferences sharedPreferences) {
+      BuildContext context, SharedPreferences sharedPreferences) {
     return BlocProvider(
       create: (context) => FavoriteCubit(
-        context.read<WeatherCubit>(),
+        BlocProvider.of<WeatherCubit>(context),
         sharedPreferences,
       ),
       child: BlocBuilder<FavoriteCubit, FavoriteState>(
@@ -41,7 +42,7 @@ class FavoritePage extends StatelessWidget {
           if (favoriteState is FavoriteInitial) {
             return const Center(child: Text(ProjectKeywords.addFavoriteCity));
           } else if (favoriteState is FavoriteLoaded) {
-            return _favoriteWeatherBlocBuilder();
+            return _favoriteWeatherBlocProvider(context);
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -49,64 +50,123 @@ class FavoritePage extends StatelessWidget {
     );
   }
 
-  BlocBuilder<WeatherCubit, WeatherState> _favoriteWeatherBlocBuilder() {
-    return BlocBuilder<WeatherCubit, WeatherState>(
-      builder: (context, weatherState) {
-        if (weatherState is WeatherLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (weatherState is WeathersLoaded) {
-          return favoriteListviewBuilder(weatherState);
-        } else if (weatherState is WeatherError) {
-          return Center(child: Text('${ErrorMessage.error}: ${weatherState.message}'));
-        }
-        return const SizedBox.shrink();
-      },
+  BlocProvider<WeatherCubit> _favoriteWeatherBlocProvider(
+      BuildContext context) {
+    return BlocProvider(
+      create: (context) => BlocProvider.of<WeatherCubit>(context),
+      child: BlocBuilder<WeatherCubit, WeatherState>(
+        builder: (context, weatherState) {
+          if (weatherState is WeatherLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (weatherState is WeathersLoaded) {
+            return _favoriteListView(context, weatherState);
+          } else if (weatherState is WeatherError) {
+            return Center(
+                child: Text('${ErrorMessage.error}: ${weatherState.message}'));
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
-  ListView favoriteListviewBuilder(WeathersLoaded weatherState) {
-    return ListView.builder(
-      itemCount: weatherState.weathers.length,
-      itemBuilder: (context, index) {
-        final weather = weatherState.weathers[index];
-        return Card(
-          child: ListTile(
-            title: Text(weather.cityName),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.network(weather.icon),
-                Text(
-                    '${ProjectKeywords.temperature}: ${weather.temperature}°C'),
-                Text('${ProjectKeywords.description}: ${weather.description}'),
-                const Divider(
-                  color: Colors.white,
-                ),
-                Column(
-                  children: weather.dailyWeather.map((daily) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            '${daily.date}\n${ProjectKeywords.maxTemp}: ${daily.maxTemp}°C\n${ProjectKeywords.minTemp}: ${daily.minTemp}°C'),
-                        Image.network(daily.icon),
-                      ],
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                context
-                    .read<FavoriteCubit>()
-                    .removeFavoriteCity(weather.cityName);
-              },
-            ),
-          ),
-        );
+  Widget _favoriteListView(BuildContext context, WeathersLoaded weatherState) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        final favoriteCubit = BlocProvider.of<FavoriteCubit>(context);
+        if (favoriteCubit.state is FavoriteLoaded) {
+          final favoriteCities =
+              (favoriteCubit.state as FavoriteLoaded).favorites;
+          await BlocProvider.of<WeatherCubit>(context)
+              .fetchWeatherForCities(favoriteCities);
+        }
       },
+      child: ListView.builder(
+        itemCount: weatherState.weathers.length,
+        itemBuilder: (context, index) {
+          final weather = weatherState.weathers[index];
+          return Card(
+            key: ValueKey(weather.cityName),
+            child: ListTile(
+              title: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(weather.cityName,
+                    style: const TextStyle(fontSize: 36)),
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.network(
+                      weather.icon,
+                      loadingBuilder: (context, child, progress) {
+                        return progress == null
+                            ? child
+                            : const CircularProgressIndicator();
+                      },
+                    ),
+                    Text(
+                        '${ProjectKeywords.temperature}: ${weather.temperature}${MeasureUnit.centigrade}'),
+                    Text(
+                        '${ProjectKeywords.feelsLike}: ${weather.feelsLike}${MeasureUnit.centigrade}'),
+                    Text(
+                        '${ProjectKeywords.humidity}: ${weather.humidity}${MeasureUnit.percent}'),
+                    Text(
+                        '${ProjectKeywords.description}: ${weather.description}'),
+                    const Divider(
+                      color: Color.fromARGB(255, 126, 87, 194),
+                    ),
+                    Column(
+                      children: weather.dailyWeather.map((daily) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.deepPurple.shade400,
+                                width: 1.5,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                      '\t${daily.date}\n\t${ProjectKeywords.maxTemp}: ${daily.maxTemp}${MeasureUnit.centigrade}\n\t${ProjectKeywords.minTemp}: ${daily.minTemp}${MeasureUnit.centigrade}'),
+                                  Image.network(
+                                    daily.icon,
+                                    loadingBuilder: (context, child, progress) {
+                                      return progress == null
+                                          ? child
+                                          : const CircularProgressIndicator();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  context
+                      .read<FavoriteCubit>()
+                      .removeFavoriteCity(weather.cityName);
+                },
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

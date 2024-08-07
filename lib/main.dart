@@ -5,7 +5,6 @@ import 'package:weather_app/views/home_page.dart';
 import 'package:weather_app/cubit/weather_cubit.dart';
 import 'package:weather_app/cubit/theme_cubit.dart';
 
-
 void main() {
   runApp(const MyApp());
 }

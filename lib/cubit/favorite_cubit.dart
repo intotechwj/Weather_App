@@ -27,26 +27,29 @@ class FavoriteCubit extends Cubit<FavoriteState> {
 
   void addFavoriteCity(String cityName) {
     if (state is FavoriteLoaded) {
-      final currentState = state as FavoriteLoaded;
-      final updatedFavorites = [...currentState.favorites, cityName];
-      emit(FavoriteLoaded(updatedFavorites));
-      _saveFavorites(updatedFavorites);
-      weatherCubit.fetchWeatherForCities(updatedFavorites);
+      final updatedFavorites = [
+        ...(state as FavoriteLoaded).favorites,
+        cityName
+      ];
+      _updateFavorites(updatedFavorites);
     } else {
-      emit(FavoriteLoaded([cityName]));
-      _saveFavorites([cityName]);
-      weatherCubit.fetchWeatherForCities([cityName]);
+      _updateFavorites([cityName]);
     }
   }
 
   void removeFavoriteCity(String cityName) {
     if (state is FavoriteLoaded) {
-      final currentState = state as FavoriteLoaded;
-      final updatedFavorites =
-          currentState.favorites.where((city) => city != cityName).toList();
-      emit(FavoriteLoaded(updatedFavorites));
-      _saveFavorites(updatedFavorites);
-      weatherCubit.fetchWeatherForCities(updatedFavorites);
+      final updatedFavorites = (state as FavoriteLoaded)
+          .favorites
+          .where((city) => city != cityName)
+          .toList();
+      _updateFavorites(updatedFavorites);
     }
+  }
+
+  void _updateFavorites(List<String> favoriteCities) {
+    emit(FavoriteLoaded(favoriteCities));
+    _saveFavorites(favoriteCities);
+    weatherCubit.fetchWeatherForCities(favoriteCities);
   }
 }

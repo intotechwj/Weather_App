@@ -14,6 +14,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +26,34 @@ class _SearchPageState extends State<SearchPage> {
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: ProjectKeywords.writeCity,
+            child: Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _controller,
+                keyboardType: TextInputType.streetAddress,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: ProjectKeywords.writeCity,
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return ErrorMessage.textfieldWarning;
+                  }
+                  if (value.length <= 2) {
+                    return ErrorMessage.textfieldBoundry;
+                  }
+                  return null;
+                },
               ),
             ),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              final weatherCubit = context.read<WeatherCubit>();
-              weatherCubit.fetchWeather(_controller.text);
+              if (_formKey.currentState?.validate() ?? false) {
+                final weatherCubit = context.read<WeatherCubit>();
+                weatherCubit.fetchWeather(_controller.text);
+              }
             },
             child: const Text(ProjectKeywords.fetchWeather),
           ),
@@ -56,7 +72,7 @@ class _SearchPageState extends State<SearchPage> {
         } else if (state is WeatherLoaded) {
           return searchCityWeather(state, context);
         } else if (state is WeatherError) {
-          return Text('Error: ${state.message}',
+          return Text('${ErrorMessage.error}: ${state.message}',
               style: const TextStyle(fontSize: 20));
         }
         return const SizedBox.shrink();
@@ -67,13 +83,14 @@ class _SearchPageState extends State<SearchPage> {
   Column searchCityWeather(WeatherLoaded state, BuildContext context) {
     return Column(
       children: [
+        Image.network(state.weather.icon),
         Text('${ProjectKeywords.city}: ${state.weather.cityName}',
             style: const TextStyle(fontSize: 20)),
-        Text('${ProjectKeywords.temperature}: ${state.weather.temperature}',
+        Text(
+            '${ProjectKeywords.temperature}: ${state.weather.temperature}${MeasureUnit.centigrade}',
             style: const TextStyle(fontSize: 20)),
         Text('${ProjectKeywords.description}: ${state.weather.description}',
             style: const TextStyle(fontSize: 20)),
-        Image.network(state.weather.icon),
         ElevatedButton(
           onPressed: () {
             context

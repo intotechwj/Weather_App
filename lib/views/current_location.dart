@@ -46,8 +46,7 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          ErrorMessage.locationPermissionPermaDenied);
+      return Future.error(ErrorMessage.locationPermissionPermaDenied);
     }
 
     return await Geolocator.getCurrentPosition();
@@ -85,12 +84,12 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '${ProjectKeywords.city}: ${state.weather.cityName}',
-            style: const TextStyle(fontSize: 20),
+            state.weather.cityName,
+            style: const TextStyle(fontSize: 36),
           ),
           Image.network(state.weather.icon),
           Text(
-            '${ProjectKeywords.temperature}: ${state.weather.temperature}°C',
+            '${ProjectKeywords.temperature}: ${state.weather.temperature}${MeasureUnit.centigrade}',
             style: const TextStyle(fontSize: 20),
           ),
           Text(
@@ -98,15 +97,15 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
             style: const TextStyle(fontSize: 20),
           ),
           Text(
-            '${ProjectKeywords.windSpeed}: ${state.weather.windSpeed} km/s',
+            '${ProjectKeywords.windSpeed}: ${state.weather.windSpeed} ${MeasureUnit.kilometer}',
             style: const TextStyle(fontSize: 20),
           ),
           Text(
-            '${ProjectKeywords.humidity}: ${state.weather.humidity}%',
+            '${ProjectKeywords.humidity}: ${state.weather.humidity}${MeasureUnit.percent}',
             style: const TextStyle(fontSize: 20),
           ),
           Text(
-            '${ProjectKeywords.feelsLike}: ${state.weather.feelsLike}°C',
+            '${ProjectKeywords.feelsLike}: ${state.weather.feelsLike}${MeasureUnit.centigrade}',
             style: const TextStyle(fontSize: 20),
           ),
           const SizedBox(height: 20),
@@ -115,7 +114,7 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const Divider(
-            color: Colors.white,
+            color: Color.fromARGB(255, 126, 87, 194),
           ),
           SizedBox(
             height: 200,
@@ -132,7 +131,7 @@ class _CurrentLocationPageState extends State<CurrentLocationPage> {
                       children: [
                         Text(hourly.time),
                         Image.network(hourly.icon),
-                        Text('${hourly.temperature}°C'),
+                        Text('${hourly.temperature}${MeasureUnit.centigrade}'),
                       ],
                     ),
                   ),
